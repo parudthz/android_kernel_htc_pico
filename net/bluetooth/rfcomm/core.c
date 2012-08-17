@@ -41,7 +41,7 @@
 #include <linux/slab.h>
 
 #include <net/sock.h>
-#include <linux/uaccess.h>
+#include <asm/uaccess.h>
 #include <asm/unaligned.h>
 
 #include <net/bluetooth/bluetooth.h>
@@ -51,10 +51,10 @@
 
 #define VERSION "1.11"
 
-static int disable_cfc;
-static int l2cap_ertm;
+static int disable_cfc = 0;
 static int channel_mtu = -1;
 static unsigned int l2cap_mtu = RFCOMM_MAX_L2CAP_MTU;
+static int l2cap_ertm = 0;
 
 static struct task_struct *rfcomm_thread;
 
@@ -465,7 +465,6 @@ static int __rfcomm_dlc_close(struct rfcomm_dlc *d, int err)
 
 	switch (d->state) {
 	case BT_CONNECT:
-	case BT_CONFIG:
 		if (test_and_clear_bit(RFCOMM_DEFER_SETUP, &d->flags)) {
 			set_bit(RFCOMM_AUTH_REJECT, &d->flags);
 			rfcomm_schedule();
@@ -1164,8 +1163,7 @@ static int rfcomm_recv_ua(struct rfcomm_session *s, u8 dlci)
 			 * initiator rfcomm_process_rx already calls
 			 * rfcomm_session_put() */
 			if (s->sock->sk->sk_state != BT_CLOSED)
-				if (list_empty(&s->dlcs))
-					rfcomm_session_put(s);
+				rfcomm_session_put(s);
 			break;
 		}
 	}
@@ -1903,7 +1901,7 @@ static inline void rfcomm_check_connection(struct rfcomm_session *s)
 
 	BT_DBG("%p state %ld", s, s->state);
 
-	switch (sk->sk_state) {
+	switch(sk->sk_state) {
 	case BT_CONNECTED:
 		s->state = BT_CONNECT;
 
