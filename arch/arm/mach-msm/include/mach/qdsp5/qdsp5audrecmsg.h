@@ -218,5 +218,6 @@ struct  audrec_cmd_pcm_buffer_ptr_update_arm_to_enc_msg {
 
 #define AUDREC_CMD_FLUSH_DONE_MSG			0x000B
 
+#define ADSP_MESSAGE_ID 0xFFFF
 
 #endif
