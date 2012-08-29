@@ -675,4 +675,4 @@ static int __init snd_init(void)
 	return platform_driver_register(&snd_plat_driver);
 }
 
-module_init(snd_init);
+device_initcall(snd_init);

@@ -68,7 +68,7 @@ static DEFINE_MUTEX(audpp_lock);
 static DEFINE_MUTEX(audpp_dec_lock);
 
 #define CH_COUNT               5
-#define AUDPP_CLNT_MAX_COUNT   6
+#define AUDPP_CLNT_MAX_COUNT   6 
 #define AUDPP_AVSYNC_INFO_SIZE 7
 
 #define AUDPP_CMD_CFG_OBJ_UPDATE 0x8000

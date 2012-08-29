@@ -30,6 +30,12 @@
 #include <linux/android_pmem.h>
 #include <mach/debug_mm.h>
 
+#undef   pr_info
+#define  pr_info(fmt,args...) do { } while(0)
+
+#undef   pr_debug
+#define  pr_debug(fmt,args...) do { } while(0)
+
 struct adsp_pmem_info {
 	int fd;
 	void *vaddr;

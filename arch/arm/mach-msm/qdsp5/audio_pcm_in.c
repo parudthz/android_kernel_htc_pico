@@ -63,6 +63,9 @@
 #define IIR_PARAM_SIZE   (48)
 #define DEBUG            (0)
 
+#undef   pr_aud_info1
+#define  pr_aud_info1(fmt,args...) do { } while(0)
+
 struct tx_agc_config {
 	uint16_t agc_params[AGC_PARAM_SIZE];
 };
@@ -558,6 +561,7 @@ static int audio_dsp_set_iir(struct audio_in *audio)
 	MM_AUD_INFO("cmd_id = 0x%04x\n", cmd.cmd_id);
 	MM_AUD_INFO("active_flag = 0x%04x\n", cmd.active_flag);
 #endif
+
 	return audio_send_queue_pre(audio, &cmd, sizeof(cmd));
 }
 
@@ -778,6 +782,8 @@ static ssize_t audpcm_in_read(struct file *file,
 		data = (uint8_t *) audio->in[index].data;
 		size = audio->in[index].size;
 		if (count >= size) {
+			/* order the reads on the buffer */
+			dma_coherent_post_ops();
 			if (copy_to_user(buf, data, size)) {
 				rc = -EFAULT;
 				break;
@@ -831,7 +837,10 @@ static int audpcm_in_release(struct inode *inode, struct file *file)
 	audio->audrec = NULL;
 	audio->audpre = NULL;
 	audio->opened = 0;
-
+	if (audio->data) {
+		free_contiguous_memory((void *)audio->data);
+		audio->data = NULL;
+	}
 	mutex_unlock(&audio->lock);
 
 	getnstimeofday(&ts);
@@ -903,6 +912,24 @@ static int audpcm_in_open(struct inode *inode, struct file *file)
 
 	audpcm_in_flush(audio);
 
+	audio->data = allocate_contiguous_memory(DMASZ, MEMTYPE_EBI1,
+				SZ_4K, 0);
+	if (!audio->data) {
+		MM_ERR("could not allocate read buffers\n");
+		rc = -ENOMEM;
+		goto evt_error;
+	} else {
+		audio->phys = memory_pool_node_paddr(audio->data);
+		if (!audio->phys) {
+			MM_ERR("could not get physical address\n");
+			rc = -ENOMEM;
+			free_contiguous_memory(audio->data);
+			goto evt_error;
+		}
+		MM_DBG("read buf: phy addr 0x%08x kernel addr 0x%08x\n",
+				audio->phys, (int)audio->data);
+	}
+
 	file->private_data = audio;
 	audio->opened = 1;
 	rc = 0;
@@ -915,6 +942,12 @@ done:
 		ktime_to_ns(ktime_get()),
 		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
 		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
+	return rc;
+evt_error:
+	msm_adsp_put(audio->audrec);
+	msm_adsp_put(audio->audpre);
+	audpreproc_aenc_free(audio->enc_id);
+	mutex_unlock(&audio->lock);
 	return rc;
 }
 

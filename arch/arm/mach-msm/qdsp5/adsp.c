@@ -61,6 +61,14 @@ static inline void allow_suspend(void)
 
 #define INT_ADSP INT_ADSP_A9_A11
 
+
+//#undef   pr_info
+//#define  pr_info(fmt,args...) do { } while(0)
+
+#undef   pr_debug
+#define  pr_debug(fmt,args...) do { } while(0)
+
+
 static struct adsp_info adsp_info;
 static struct msm_rpc_endpoint *rpc_cb_server_client;
 static struct msm_adsp_module *adsp_modules;
@@ -216,7 +224,6 @@ static int adsp_rpc_init(struct msm_adsp_module *adsp_module)
 		rpc_adsp_rtos_atom_prog,
 		rpc_adsp_rtos_atom_vers,
 		MSM_RPC_UNINTERRUPTIBLE);
-
 	if (IS_ERR(adsp_module->rpc_client))
 		adsp_module->rpc_client = msm_rpc_connect_compatible(
 		rpc_adsp_rtos_atom_prog,
@@ -247,13 +254,11 @@ static void  msm_get_init_info(void)
 		rpc_adsp_rtos_atom_prog,
 		rpc_adsp_rtos_atom_vers,
 		MSM_RPC_UNINTERRUPTIBLE);
-
 	if (IS_ERR(adsp_info.init_info_rpc_client)) {
 		adsp_info.init_info_rpc_client = msm_rpc_connect_compatible(
 		rpc_adsp_rtos_atom_prog,
 		rpc_adsp_rtos_atom_vers_comp,
 		MSM_RPC_UNINTERRUPTIBLE);
-
 		if (IS_ERR(adsp_info.init_info_rpc_client)) {
 			rc = PTR_ERR(adsp_info.init_info_rpc_client);
 			adsp_info.init_info_rpc_client = 0;
@@ -444,7 +449,7 @@ int __msm_adsp_write(struct msm_adsp_module *module, unsigned dsp_queue_addr,
 			ret_status = -EIO;
 			goto fail;
 		}
-		pr_warning("adsp: waiting for DSP write ready\n");
+		pr_info("adsp: waiting for DSP write ready\n");
 		udelay(2);
 		cnt++;
 	}
@@ -1031,7 +1036,7 @@ static irqreturn_t adsp_irq_handler(int irq, void *data)
 int adsp_set_clkrate(struct msm_adsp_module *module, unsigned long clk_rate)
 {
 	if (module->clk && clk_rate)
-		return clk_set_min_rate(module->clk, clk_rate);
+		return clk_set_rate(module->clk, clk_rate);
 
 	return -EINVAL;
 }
@@ -1214,8 +1219,7 @@ static int msm_adsp_probe(struct platform_device *pdev)
 		else
 			mod->clk = NULL;
 		if (mod->clk && adsp_info.module[i].clk_rate)
-			clk_set_min_rate(mod->clk,
-						adsp_info.module[i].clk_rate);
+			clk_set_rate(mod->clk, adsp_info.module[i].clk_rate);
 		mod->verify_cmd = adsp_info.module[i].verify_cmd;
 		mod->patch_event = adsp_info.module[i].patch_event;
 		INIT_HLIST_HEAD(&mod->pmem_regions);

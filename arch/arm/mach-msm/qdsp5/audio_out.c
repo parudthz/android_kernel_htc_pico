@@ -187,8 +187,10 @@ struct audio_copp {
 
 static void audio_prevent_sleep(struct audio *audio)
 {
+#if 0 //HTC_START Qingyuan20120301 disable log in camera recording mode
 	printk(KERN_INFO "++++++++++++++++++++++++++++++\n");
 	AUDIO_LOG("AUDIO PLAYBACK START");
+#endif //HTC_END
 	wake_lock(&audio->wakelock);
 	wake_lock(&audio->idlelock);
 }
@@ -197,8 +199,10 @@ static void audio_allow_sleep(struct audio *audio)
 {
 	wake_unlock(&audio->wakelock);
 	wake_unlock(&audio->idlelock);
+#if 0 //HTC_START Qingyuan20120301 disable log in camera recording mode
 	AUDIO_LOG("AUDIO PLAYBACK OFF");
 	printk(KERN_INFO "------------------------------\n");
+#endif //HTC_END
 }
 
 static int audio_dsp_out_enable(struct audio *audio, int yes);
@@ -397,7 +401,6 @@ static int audio_dsp_out_enable(struct audio *audio, int yes)
 		cmd.sample_rate		= audio->out_sample_rate;
 		cmd.channel_mode	= audio->out_channel_mode;
 	}
-
 	return audpp_send_queue2(&cmd, sizeof(cmd));
 }
 
@@ -747,13 +750,13 @@ static ssize_t audio_write(struct file *file, const char __user *buf,
 static int audio_release(struct inode *inode, struct file *file)
 {
 	struct audio *audio = file->private_data;
-
 	LOG(EV_OPEN, 0);
 	mutex_lock(&audio->lock);
 	audio_disable(audio);
 	audio_flush(audio);
 	audio->opened = 0;
 	mutex_unlock(&audio->lock);
+
 	return 0;
 }
 
@@ -794,7 +797,6 @@ static int audio_open(struct inode *inode, struct file *file)
 	audio->out[0].data = audio->data + 0;
 	audio->out[0].addr = audio->phys + 0;
 	audio->out[0].size = BUFSZ;
-
 	audio->out[1].data = audio->data + BUFSZ;
 	audio->out[1].addr = audio->phys + BUFSZ;
 	audio->out[1].size = BUFSZ;

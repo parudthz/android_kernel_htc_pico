@@ -379,6 +379,10 @@ int audmgr_enable(struct audmgr *am, struct audmgr_config *cfg)
 
 	rc = wait_event_timeout(am->wait, am->state != STATE_ENABLING, 15 * HZ);
 	if (rc == 0) {
+	    MM_AUD_ERR("tx_sample_rate:%d,rx_sample_rate:%d\n",
+		    msg.args.tx_sample_rate, msg.args.rx_sample_rate);
+	    MM_AUD_ERR("def_method:%d,codec_type:%d,snd_method:%d\n",
+		    msg.args.def_method, msg.args.codec_type, msg.args.snd_method);
 	    MM_AUD_ERR("audmgr_enable: ARM9 did not reply to RPC am->"
 		    "state = %d\n", am->state);
 	    dprint_int_ctrl_regs();
