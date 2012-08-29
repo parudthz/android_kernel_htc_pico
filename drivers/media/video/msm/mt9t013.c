@@ -1122,7 +1122,7 @@ static int mt9t013_sensor_init_done(const struct msm_camera_sensor_info *data)
 }
 
 // HTC_START
-// AWB/LSC calibration
+#if 0// AWB/LSC calibration
 static int mt9t013_i2c_read_fuseid(struct sensor_cfg_data *cdata)
 {
 
@@ -1197,6 +1197,7 @@ static int mt9t013_i2c_read_fuseid(struct sensor_cfg_data *cdata)
 fail:
 	return rc;
 }
+#endif
 // HTC_END
 
 
@@ -1315,7 +1316,7 @@ static void set_reset_pin(const struct msm_camera_sensor_info *data, int value)
 int mt9t013_sensor_open_init(const struct msm_camera_sensor_info *data)
 {
 	int32_t  rc;
-    pr_err("[CAM] mt9t013_sensor_open_init !\n");
+    pr_info("[CAM] mt9t013_sensor_open_init !\n");
 
 	mt9t013_ctrl = kzalloc(sizeof(struct mt9t013_ctrl), GFP_KERNEL);
 	if (!mt9t013_ctrl) {
@@ -1549,11 +1550,13 @@ int mt9t013_sensor_config(void __user *argp)
 		rc = mt9t013_set_default_focus(cdata.cfg.focus.steps);
 		break;
 // HTC_START
+#if 0
 // AWB/LSC cal.
 	case CFG_GET_OTP:
 		rc = mt9t013_i2c_read_fuseid(&cdata);
 		if (copy_to_user(argp, &cdata, sizeof(struct sensor_cfg_data)))
 			rc = -EFAULT;
+#endif
 // HTC_END		
 		break;
 
@@ -1735,8 +1738,8 @@ static int mt9t013_sensor_probe(
 	hr_msleep(5);
     // PG-POWER_SEQ-00-}
 
-	pr_info("[CAM] mt9t013_sensor_probe s->node 0x%x\n", s->node);
-	sensor_probe_node = s->node;
+	//pr_info("[CAM] mt9t013_sensor_probe s->node 0x%x\n", s->node);
+	//sensor_probe_node = s->node;
 	
 	rc = mt9t013_probe_init_sensor(info);
 	if (rc < 0) {

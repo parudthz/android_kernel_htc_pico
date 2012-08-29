@@ -167,11 +167,13 @@ u32 msm_io_r(void __iomem *addr)
 	return data;
 }
 
-void msm_camio_vfe_clk_rate_set(int rate)
+int msm_camio_vfe_clk_rate_set(int rate)
 {
+	int rc = 0;
 	struct clk *clk = camio_vfe_clk;
 	if (rate > clk_get_rate(clk))
-		clk_set_rate(clk, rate);
+		rc = clk_set_rate(clk, rate);
+	return rc;
 }
 
 int msm_camio_clk_enable(enum msm_camio_clk_type clktype)
@@ -201,15 +203,17 @@ int msm_camio_clk_enable(enum msm_camio_clk_type clktype)
 	case CAMIO_CSI_SRC_CLK:
 		clk = clk_get(NULL, "csi_src_clk");
 		camio_csi_src_clk = clk;
+		msm_camio_clk_rate_set_2(clk, 306000000);
 		break;
 	case CAMIO_CSI0_CLK:
 		clk = clk_get(&camio_dev->dev, "csi_clk");
 		camio_csi0_clk = clk;
-		msm_camio_clk_rate_set_2(clk, 400000000);
+		//msm_camio_clk_rate_set_2(clk, 400000000);
 		break;
 	case CAMIO_CSI1_CLK:
 		clk = clk_get(NULL, "csi_clk");
 		camio_csi1_clk = clk;
+		//msm_camio_clk_rate_set_2(clk, 400000000);
 		break;
 	case CAMIO_CSI0_PCLK:
 		clk = clk_get(&camio_dev->dev, "csi_pclk");
@@ -301,7 +305,7 @@ static irqreturn_t msm_io_csi_irq(int irq_num, void *data)
 
 	/* TODO: Needs to send this info to upper layers */
 	if ((irq >> 19) & 0x1)
-		pr_info("Unsupported packet format is received\n");
+		pr_info("[CAM]Unsupported packet format is received\n");
 	return IRQ_HANDLED;
 }
 
@@ -488,7 +492,7 @@ int msm_camio_probe_off(struct platform_device *pdev)
 
 	csibase = ioremap(camdev->ioext.csiphy, camdev->ioext.csisz);
 	if (!csibase) {
-		pr_err("ioremap failed for CSIBASE\n");
+		pr_err("[CAM]ioremap failed for CSIBASE\n");
 		goto ioremap_fail;
 	}
 	msm_io_w(MIPI_PWR_CNTL_DIS, csibase + MIPI_PWR_CNTL);
@@ -521,7 +525,9 @@ int msm_camio_csi_config(struct msm_camera_csi_params *csi_params)
 		MIPI_PROTOCOL_CONTROL_DPCM_SCHEME_SHFT;
 	CDBG("%s MIPI_PROTOCOL_CONTROL val=0x%x\n", __func__, val);
 	msm_io_w(val, csibase + MIPI_PROTOCOL_CONTROL);
-
+	/*HTC_START Horng 20110905*/
+	/*Disable MIPI CALIBRATION CONTROL*/
+#if 0
 	val = (0x1 << MIPI_CALIBRATION_CONTROL_SWCAL_CAL_EN_SHFT) |
 		(0x1 <<
 		MIPI_CALIBRATION_CONTROL_SWCAL_STRENGTH_OVERRIDE_EN_SHFT) |
@@ -529,6 +535,8 @@ int msm_camio_csi_config(struct msm_camera_csi_params *csi_params)
 		(0x1 << MIPI_CALIBRATION_CONTROL_MANUAL_OVERRIDE_EN_SHFT);
 	CDBG("%s MIPI_CALIBRATION_CONTROL val=0x%x\n", __func__, val);
 	msm_io_w(val, csibase + MIPI_CALIBRATION_CONTROL);
+#endif
+/*HTC_END*/
 
 	val = (csi_params->settle_cnt <<
 		MIPI_PHY_D0_CONTROL2_SETTLE_COUNT_SHFT) |
@@ -538,16 +546,28 @@ int msm_camio_csi_config(struct msm_camera_csi_params *csi_params)
 	CDBG("%s MIPI_PHY_D0_CONTROL2 val=0x%x\n", __func__, val);
 	msm_io_w(val, csibase + MIPI_PHY_D0_CONTROL2);
 	msm_io_w(val, csibase + MIPI_PHY_D1_CONTROL2);
+#if 0 /* sync 8x60 unuse channel is to cause device reset */
 	msm_io_w(val, csibase + MIPI_PHY_D2_CONTROL2);
 	msm_io_w(val, csibase + MIPI_PHY_D3_CONTROL2);
+#endif
 
+	/*HTC_START Horng 20110802*/
+	/*Disable MIPI lane2,lane3 if not in use*/
+		if (csi_params->lane_cnt > 2) {
+			msm_io_w(val, csibase + MIPI_PHY_D2_CONTROL2);
+			msm_io_w(val, csibase + MIPI_PHY_D3_CONTROL2);
+		} else {
+			msm_io_w(0x00000000, csibase + MIPI_PHY_D2_CONTROL2);
+			msm_io_w(0x00000000, csibase + MIPI_PHY_D3_CONTROL2);
+		}
+	/*HTC_END*/
 
 	val = (0x0F << MIPI_PHY_CL_CONTROL_HS_TERM_IMP_SHFT) |
 		(0x1 << MIPI_PHY_CL_CONTROL_LP_REC_EN_SHFT);
 	CDBG("%s MIPI_PHY_CL_CONTROL val=0x%x\n", __func__, val);
 	msm_io_w(val, csibase + MIPI_PHY_CL_CONTROL);
 
-	val = csi_params->mipi_driving_strength << MIPI_PHY_D0_CONTROL_HS_REC_EQ_SHFT;
+	val = 0 << MIPI_PHY_D0_CONTROL_HS_REC_EQ_SHFT;
 	msm_io_w(val, csibase + MIPI_PHY_D0_CONTROL);
 
 	val = (0x1 << MIPI_PHY_D1_CONTROL_MIPI_CLK_PHY_SHUTDOWNB_SHFT) |

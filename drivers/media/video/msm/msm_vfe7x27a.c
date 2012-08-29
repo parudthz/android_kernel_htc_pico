@@ -131,7 +131,7 @@ static void vfe_7x_ops(void *driver_data, unsigned id, size_t len,
 		vfe_syncdata,  GFP_ATOMIC); /* vfe_alloc = msm_vfe_sync_alloc */
 
 	if (!data) {
-		pr_err("%s: rp: cannot allocate buffer\n", __func__);
+		pr_err("[CAM]%s: rp: cannot allocate buffer\n", __func__);
 		return;
 	}
 	rp = data;
@@ -266,9 +266,13 @@ static int vfe_7x_stop(void)
 
 static void vfe_7x_release(struct platform_device *pdev)
 {
+/* HTC_START Qingyuan_li 20120327 */
+#if 0
 	mutex_lock(&vfe_lock);
 	vfe_syncdata = NULL;
 	mutex_unlock(&vfe_lock);
+#endif
+/* HTC_END */
 
 	if (!vfestopped) {
 		CDBG("%s:%d:Calling vfe_7x_stop()\n", __func__, __LINE__);
@@ -287,8 +291,14 @@ static void vfe_7x_release(struct platform_device *pdev)
 	kfree(extdata);
 	extlen = 0;
 
-	/* set back the AXI frequency to default */
-	/* TODO msm_camio_set_perf_lvl(S_DEFAULT); */
+	msm_camio_set_perf_lvl(S_EXIT);
+
+/* HTC_START Qingyuan_li 20120327 */
+	usleep(1000);
+	mutex_lock(&vfe_lock);
+	vfe_syncdata = NULL;
+	mutex_unlock(&vfe_lock);
+/* HTC_END */
 }
 
 static int vfe_7x_init(struct msm_vfe_callback *presp,
@@ -435,7 +445,7 @@ static int vfe_7x_config(struct msm_vfe_cfg_cmd *cmd, void *data)
 
 	vfecmd = kmalloc(sizeof(struct msm_vfe_command_7k), GFP_ATOMIC);
 	if (!vfecmd) {
-		pr_err("vfecmd alloc failed!\n");
+		pr_err("[CAM]vfecmd alloc failed!\n");
 		return -ENOMEM;
 	}
 
@@ -707,18 +717,17 @@ static int vfe_7x_config(struct msm_vfe_cfg_cmd *cmd, void *data)
 		goto config_done;
 
 config_send:
-    // HTC_START
-    // klocwork: NPD.GEN.MIGHT/NPD.GEN.CALL.MIGHT
+    /* HTC_START */
+    /* klocwork: NPD.GEN.MIGHT/NPD.GEN.CALL.MIGHT */
     if (cmd_data)
     {
-	    CDBG("send adsp command = %d\n", *(uint32_t *)cmd_data);
-        rc = msm_adsp_write(vfe_mod, vfecmd->queue,
-                        cmd_data, vfecmd->length);
+	CDBG("send adsp command = %d\n", *(uint32_t *)cmd_data);
+	rc = msm_adsp_write(vfe_mod, vfecmd->queue,
+				cmd_data, vfecmd->length);
 	}
 	else
-	    CDBG("send adsp command = NULL\n");
-	// HTC_END
-	
+	    pr_info("[CAM]send adsp command = NULL\n");
+	/* HTC_END */
 config_done:
 	kfree(cmd_data_alloc);
 
