@@ -192,6 +192,45 @@ struct msm_camera_sensor_platform_info {
 	int mount_angle;
 };
 
+/* Andrew_Cheng linear led 20111205 MB*/
+struct camera_led_info {
+	uint16_t enable;
+	uint16_t low_limit_led_state;
+	uint16_t max_led_current_ma;
+	uint16_t num_led_est_table;
+};
+
+struct camera_led_est {
+	uint16_t enable;
+	uint16_t led_state;
+	uint16_t current_ma;
+	uint16_t lumen_value;
+	uint16_t min_step;
+	uint16_t max_step;
+};
+
+struct camera_flash_cfg {
+	int num_flash_levels;
+	int (*camera_flash)(int level);
+	uint16_t low_temp_limit;
+	uint16_t low_cap_limit;
+	uint16_t low_cap_limit_dual;
+	uint8_t postpone_led_mode;
+	struct camera_flash_info *flash_info;	/* Andrew_Cheng linear led 20111205 */
+};
+
+struct camera_flash_info {
+	struct camera_led_info *led_info;
+	struct camera_led_est *led_est_table;
+};
+
+enum msm_camera_type {
+	BACK_CAMERA_2D,
+	FRONT_CAMERA_2D,
+	BACK_CAMERA_3D,
+	BACK_CAMERA_INT_3D,
+};
+
 struct msm_camera_sensor_info {
 	const char *sensor_name;
 	int sensor_reset_enable;
@@ -199,8 +238,12 @@ struct msm_camera_sensor_info {
 	int sensor_pwd;
 	int vcm_pwd;
 	int vcm_enable;
+#ifdef CONFIG_CAMERA_3D
+	uint8_t stereo_low_cap_limit;
+#endif
 	int mclk;
 	int flash_type;
+	int need_suspend;
 	struct msm_camera_sensor_platform_info *sensor_platform_info;
 	struct msm_camera_device_platform_data *pdata;
 	struct resource *resource;
@@ -210,7 +253,36 @@ struct msm_camera_sensor_info {
 	struct msm_camera_csi_params csi_params;
 	struct msm_camera_sensor_strobe_flash_data *strobe_flash_data;
 	char *eeprom_data;
+	struct msm_camera_gpio_conf *gpio_conf;
+	enum msm_camera_type camera_type;
+	struct msm_actuator_info *actuator_info;
+	int (*camera_power_on)(void);
+	int (*camera_power_off)(void);
+	int use_rawchip;
+	int (*sensor_version)(void);
+	//HTC_CAM_START chuck
+	int (*camera_main_get_probe)(void);
+	void (*camera_main_set_probe)(int);
+    //HTC_CAM_END
+#if 1 /* HTC to be removed */
+	/* HTC++ */
+	void(*camera_clk_switch)(void);
+	int power_down_disable; /* if close power */
+	int full_size_preview; /* if use full-size preview */
+	int cam_select_pin; /* for two sensors */
+	int mirror_mode; /* for sensor upside down */
+	int(*camera_pm8058_power)(int); /* for express */
+	struct camera_flash_cfg* flash_cfg;
+	int gpio_set_value_force; /*true: force to set gpio  */
 	int dev_node;
+	int camera_platform;
+	uint8_t led_high_enabled;
+	uint32_t kpi_sensor_start;
+	uint32_t kpi_sensor_end;
+	uint8_t (*preview_skip_frame)(void);
+#endif
+	int sensor_lc_disable; /* S5K4E1GX: for sensor lens correction support */
+	int zero_shutter_mode; /* S5K4E1GX: for doing zero shutter lag on MIPI */
 };
 
 int __init msm_get_cam_resources(struct msm_camera_sensor_info *);
@@ -315,18 +387,24 @@ struct msm_panel_common_pdata {
 #ifdef CONFIG_MSM_BUS_SCALING
 	struct msm_bus_scale_pdata *mdp_bus_scale_table;
 #endif
+	int mdp_rev;
+	u32 ov0_wb_size;  /* overlay0 writeback size */
+	u32 ov1_wb_size;  /* overlay1 writeback size */
+	u32 mem_hid;
+	int (*writeback_offset)(void);
 	int (*mdp_color_enhance)(void);
 	int (*mdp_gamma)(void);
-	int mdp_rev;
+	void (*mdp_img_stick_wa)(bool);
+	unsigned long update_interval;
+	atomic_t img_stick_on;
+	struct panel_dcr_info *dcr_panel_pinfo;
+	unsigned int auto_bkl_stat;
+	int (*bkl_enable)(int);
+#ifdef CONFIG_FB_MSM8960
+	int (*acl_enable)(int);
+#else
 	int fpga_3d_config_addr;
-};
-
-struct lcdc_platform_data {
-	int (*lcdc_gpio_config)(int on);
-	int (*lcdc_power_save)(int);
-	unsigned int (*lcdc_get_clk)(void);
-#ifdef CONFIG_MSM_BUS_SCALING
-	struct msm_bus_scale_pdata *bus_scale_table;
+	struct gamma_curvy *abl_gamma_tbl;
 #endif
 };
 
@@ -356,6 +434,10 @@ struct msm_fb_platform_data {
 	int (*detect_client)(const char *name);
 	int mddi_prescan;
 	int (*allow_set_offset)(void);
+	int blt_mode;
+	uint32_t width;
+	uint32_t height;
+	bool     is_3d_panel;
 };
 
 struct msm_hdmi_platform_data {
