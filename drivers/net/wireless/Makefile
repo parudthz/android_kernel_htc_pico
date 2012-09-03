@@ -63,3 +63,4 @@ obj-$(CONFIG_WCNSS_WLAN)	+= wcnss/
 
 obj-$(CONFIG_BCM4330)	+= bcm4330/
 obj-$(CONFIG_BCM4330B2)	+= bcm4330b2/
+obj-$(CONFIG_BCMDHD) += bcmdhd/
