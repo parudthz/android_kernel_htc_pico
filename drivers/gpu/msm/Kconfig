@@ -21,13 +21,6 @@ config MSM_KGSL_CFF_DUMP
 	  via 'echo 0 > /d/kgsl/cff_dump'.  The log can be captured via
 	  /d/kgsl-cff/cpu[0|1].
 
-config MSM_KGSL_ADRENO200
-	bool "When selected will add adreno 200 support"
-	default y
-	depends on MSM_KGSL
-	---help---
-	Adreno 200 support.
-	  
 config MSM_KGSL_CFF_DUMP_NO_CONTEXT_MEM_DUMP
 	bool "When selected will disable KGSL CFF Dump for context switches"
 	default n

@@ -34,8 +34,8 @@ struct kgsl_iommu {
 static int kgsl_iommu_pt_equal(struct kgsl_pagetable *pt,
 					unsigned int pt_base)
 {
-	struct iommu_domain *domain = pt->priv;
-	return pt && pt_base && ((unsigned int)domain == pt_base);
+	struct iommu_domain *domain = pt ? pt->priv : NULL;
+	return domain && pt_base && ((unsigned int)domain == pt_base);
 }
 
 static void kgsl_iommu_destroy_pagetable(void *mmu_specific_pt)
@@ -47,7 +47,7 @@ static void kgsl_iommu_destroy_pagetable(void *mmu_specific_pt)
 
 void *kgsl_iommu_create_pagetable(void)
 {
-	struct iommu_domain *domain = iommu_domain_alloc();
+	struct iommu_domain *domain = iommu_domain_alloc(0);
 	if (!domain)
 		KGSL_CORE_ERR("Failed to create iommu domain\n");
 
@@ -224,14 +224,14 @@ static int
 kgsl_iommu_unmap(void *mmu_specific_pt,
 		struct kgsl_memdesc *memdesc)
 {
-	/*int ret;
+	int ret;
 	unsigned int range = memdesc->size;
 	struct iommu_domain *domain = (struct iommu_domain *)
 					mmu_specific_pt;
 
-	// All GPU addresses as assigned are page aligned, but some
-	//   functions purturb the gpuaddr with an offset, so apply the
-	//   mask here to make sure we have the right address 
+	/* All GPU addresses as assigned are page aligned, but some
+	   functions purturb the gpuaddr with an offset, so apply the
+	   mask here to make sure we have the right address */
 
 	unsigned int gpuaddr = memdesc->gpuaddr &  KGSL_MMU_ALIGN_MASK;
 
@@ -242,7 +242,7 @@ kgsl_iommu_unmap(void *mmu_specific_pt,
 	if (ret)
 		KGSL_CORE_ERR("iommu_unmap_range(%p, %x, %d) failed "
 			"with err: %d\n", domain, gpuaddr,
-			range, ret);*/
+			range, ret);
 
 	return 0;
 }
@@ -252,7 +252,7 @@ kgsl_iommu_map(void *mmu_specific_pt,
 			struct kgsl_memdesc *memdesc,
 			unsigned int protflags)
 {
-	/*int ret;
+	int ret;
 	unsigned int iommu_virt_addr;
 	struct iommu_domain *domain = mmu_specific_pt;
 
@@ -262,16 +262,16 @@ kgsl_iommu_map(void *mmu_specific_pt,
 	iommu_virt_addr = memdesc->gpuaddr;
 
 	ret = iommu_map_range(domain, iommu_virt_addr, memdesc->sg,
-				memdesc->size, 0);
+				memdesc->size, (IOMMU_READ | IOMMU_WRITE));
 	if (ret) {
 		KGSL_CORE_ERR("iommu_map_range(%p, %x, %p, %d, %d) "
 				"failed with err: %d\n", domain,
 				iommu_virt_addr, memdesc->sg, memdesc->size,
 				0, ret);
 		return ret;
-	}*/
+	}
 
-	return 0;
+	return ret;
 }
 
 static int kgsl_iommu_stop(struct kgsl_device *device)
