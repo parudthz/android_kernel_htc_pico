@@ -617,7 +617,7 @@ int android_switch_function(unsigned func)
 			!strcmp(f->name, "acm"))
 			f->hidden = 0;
 		else if ((func & (1 << USB_FUNCTION_RNDIS)) &&
-			!strcmp(f->name, "ether")) {
+			!strcmp(f->name, "rndis")) {
 			if (f->hidden) {
 				pr_info("%s: rndis perf lock\n", __func__);
 				wake_lock(&usb_rndis_idle_wake_lock);
@@ -684,7 +684,7 @@ int android_switch_function(unsigned func)
 			!strcmp(f->name, "modem_mdm"))
 			f->hidden = 0;
 		else {
-			if (!strcmp(f->name, "ether") && !f->hidden) {
+			if (!strcmp(f->name, "rndis") && !f->hidden) {
 				pr_info("%s: rndis perf unlock\n", __func__);
 				wake_unlock(&usb_rndis_idle_wake_lock);
 #ifdef CONFIG_PERFLOCK
