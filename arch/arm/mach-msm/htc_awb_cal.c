@@ -26,13 +26,8 @@ GNU General Public License for more details.
 
 /* configuration tags specific to msm */
 #define ATAG_MSM_AWB_CAL	0x59504550 /* MSM CAMERA AWB Calibration */
-/* HTC_START */
-#if defined(CONFIG_ARCH_MSM7X30) || defined(CONFIG_ARCH_MSM8X60) || defined(CONFIG_ARCH_MSM7X27A)
-/* HTC_END */
+
 #define AWB_CAL_MAX_SIZE	0x1000U     /* 0x1000 = 4096 bytes */
-#else
-#define AWB_CAL_MAX_SIZE	0x800U     /* 0x800 = 2048 bytes */
-#endif
 
 struct qct_lsc_struct{
 	unsigned long int	lsc_verify;
@@ -44,6 +39,7 @@ struct qct_lsc_struct{
 struct qct_awb_lsc_struct{
 	unsigned long int caBuff[8];/* AWB Calibartion */
 	struct qct_lsc_struct qct_lsc_data;/* LSC Calibration */
+	unsigned long int flashcaBuff[8];  /* flash_camera */
 };
 
 static unsigned char cam_awb_ram[AWB_CAL_MAX_SIZE];

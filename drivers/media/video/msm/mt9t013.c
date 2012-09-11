@@ -1122,7 +1122,6 @@ static int mt9t013_sensor_init_done(const struct msm_camera_sensor_info *data)
 }
 
 // HTC_START
-#if 0// AWB/LSC calibration
 static int mt9t013_i2c_read_fuseid(struct sensor_cfg_data *cdata)
 {
 
@@ -1197,7 +1196,7 @@ static int mt9t013_i2c_read_fuseid(struct sensor_cfg_data *cdata)
 fail:
 	return rc;
 }
-#endif
+
 // HTC_END
 
 
@@ -1549,17 +1548,13 @@ int mt9t013_sensor_config(void __user *argp)
 	case CFG_SET_DEFAULT_FOCUS:
 		rc = mt9t013_set_default_focus(cdata.cfg.focus.steps);
 		break;
-// HTC_START
-#if 0
-// AWB/LSC cal.
-	case CFG_GET_OTP:
+
+	case CFG_I2C_IOCTL_R_OTP:
 		rc = mt9t013_i2c_read_fuseid(&cdata);
 		if (copy_to_user(argp, &cdata, sizeof(struct sensor_cfg_data)))
 			rc = -EFAULT;
-#endif
-// HTC_END		
 		break;
-
+		
 	case CFG_GET_AF_MAX_STEPS:
 		cdata.max_steps = MT9T013_TOTAL_STEPS_NEAR_TO_FAR;
 		if (copy_to_user((void *)argp,
@@ -1568,6 +1563,7 @@ int mt9t013_sensor_config(void __user *argp)
 			rc = -EFAULT;
 		break;
 
+	
 	case CFG_SET_EFFECT:
 	default:
 		rc = -EINVAL;
