@@ -82,7 +82,7 @@ static void ext4_destroy_lazyinit_thread(void);
 static void ext4_unregister_li_request(struct super_block *sb);
 static void ext4_clear_request_list(void);
 
-#if !defined(CONFIG_EXT2_FS) && !defined(CONFIG_EXT2_FS_MODULE) && defined(CONFIG_EXT4_USE_FOR_EXT23
+#if !defined(CONFIG_EXT2_FS) && !defined(CONFIG_EXT2_FS_MODULE) && defined(CONFIG_EXT4_USE_FOR_EXT23)
 static struct file_system_type ext2_fs_type = {
 	.owner    	= THIS_MODULE,
 	.name     	= "ext2",
@@ -3175,24 +3175,24 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	if (IS_EXT2_SB(sb)) {
 		if (ext2_feature_set_ok(sb))
 			ext4_msg(sb, KERN_INFO, "mounting ext2 file system "
-				"using the ext4 subsystem");
+				 "using the ext4 subsystem");
 		else {
 			ext4_msg(sb, KERN_ERR, "couldn't mount as ext2 due "
-				"to feature incompatibilities");
-		goto failed_mount;
+				 "to feature incompatibilities");
+			goto failed_mount;
+		}
 	}
-}
 
 	if (IS_EXT3_SB(sb)) {
 		if (ext3_feature_set_ok(sb))
 			ext4_msg(sb, KERN_INFO, "mounting ext3 file system "
-				"using the ext4 subsystem");
+				 "using the ext4 subsystem");
 		else {
-			ext4_msg(sb, KERN_ERR, "couldn't mount as ext3 due
-				"to feature incompatibilities");
-		goto failed_mount;
+			ext4_msg(sb, KERN_ERR, "couldn't mount as ext3 due "
+				 "to feature incompatibilities");
+			goto failed_mount;
+		}
 	}
-}	
 
 	/*
 	 * Check feature flags regardless of the revision level, since we
@@ -4769,7 +4769,7 @@ static inline int ext2_feature_set_ok(struct super_block *sb)
 {
 	if (EXT4_HAS_INCOMPAT_FEATURE(sb, ~EXT2_FEATURE_INCOMPAT_SUPP))
 		return 0;
-	if (sb->s_flags & MS_RDONLY
+	if (sb->s_flags & MS_RDONLY)
 		return 1;
 	if (EXT4_HAS_RO_COMPAT_FEATURE(sb, ~EXT2_FEATURE_RO_COMPAT_SUPP))
 		return 0;
@@ -4803,7 +4803,7 @@ static inline int ext3_feature_set_ok(struct super_block *sb)
 	if (!EXT4_HAS_COMPAT_FEATURE(sb, EXT4_FEATURE_COMPAT_HAS_JOURNAL))
 		return 0;
 	if (sb->s_flags & MS_RDONLY)
-		return 1'
+		return 1;
 	if (EXT4_HAS_RO_COMPAT_FEATURE(sb, ~EXT3_FEATURE_RO_COMPAT_SUPP))
 		return 0;
 	return 1;
