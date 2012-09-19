@@ -347,3 +347,7 @@ config NEED_PER_CPU_KM
 	depends on !SMP
 	bool
 	default y
+
+config CLEANCACHE
+	bool "Enable cleancache driver to cache clean pages if tmem is present"
+	default y
