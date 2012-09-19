@@ -117,7 +117,7 @@ void __remove_from_page_cache(struct page *page)
 {
 	struct address_space *mapping = page->mapping;
 
-	if (PageUptodate(page) && PageMappedToDisk(page)
+	if (PageUptodate(page) && PageMappedToDisk(page))
 		cleancache_put_page(page);
 	else
 		cleancache_flush_page(mapping, page);	
