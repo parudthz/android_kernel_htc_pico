@@ -6,5 +6,5 @@ schedtool -B -n 1 -e ionice -n 1 make -j `cat /proc/cpuinfo | grep "^processor" 
 make >&1 | tee ./output/log.txt
 mv ./arch/arm/boot/zImage ./output
 find ./ -name "*.ko" -exec mv {} ./output \;
-find ./output "*.txt" rm "*.txt"
+rm output/log.txt
 echo "done, please check your output folder"
