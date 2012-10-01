@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Linux/arm 2.6.38.6 Kernel Configuration
-# Tue Sep  4 19:08:17 2012
+# Mon Oct  1 18:44:13 2012
 #
 CONFIG_ARM=y
 CONFIG_SYS_SUPPORTS_APM_EMULATION=y
@@ -648,7 +648,7 @@ CONFIG_TCP_CONG_CUBIC=y
 CONFIG_DEFAULT_TCP_CONG="cubic"
 # CONFIG_TCP_MD5SIG is not set
 CONFIG_IPV6=y
-# CONFIG_IPV6_PRIVACY is not set
+CONFIG_IPV6_PRIVACY=y
 # CONFIG_IPV6_ROUTER_PREF is not set
 # CONFIG_IPV6_OPTIMISTIC_DAD is not set
 # CONFIG_INET6_AH is not set
@@ -1193,6 +1193,7 @@ CONFIG_LIBRA_SDIOIF=m
 CONFIG_BCMDHD=m
 CONFIG_BCMDHD_FW_PATH="/system/etc/firmware/fw_bcm4330_b2.bin"
 CONFIG_BCMDHD_NVRAM_PATH="/proc/calibration"
+# CONFIG_DHD_USE_STATIC_BUF is not set
 # CONFIG_HOSTAP is not set
 # CONFIG_IWM is not set
 # CONFIG_LIBERTAS is not set
