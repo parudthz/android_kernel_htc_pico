@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Linux/arm 2.6.38.6 Kernel Configuration
-# Mon Oct  1 18:44:13 2012
+# Wed Oct  3 20:52:15 2012
 #
 CONFIG_ARM=y
 CONFIG_SYS_SUPPORTS_APM_EMULATION=y
@@ -553,7 +553,7 @@ CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND=y
 # CONFIG_CPU_FREQ_DEFAULT_GOV_CONSERVATIVE is not set
 # CONFIG_CPU_FREQ_DEFAULT_GOV_INTERACTIVE is not set
 CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
-# CONFIG_CPU_FREQ_GOV_POWERSAVE is not set
+CONFIG_CPU_FREQ_GOV_POWERSAVE=y
 # CONFIG_CPU_FREQ_GOV_USERSPACE is not set
 CONFIG_CPU_FREQ_GOV_ONDEMAND=y
 CONFIG_CPU_FREQ_GOV_INTERACTIVE=y
@@ -853,40 +853,7 @@ CONFIG_IP6_NF_RAW=y
 # CONFIG_WAN_ROUTER is not set
 # CONFIG_PHONET is not set
 # CONFIG_IEEE802154 is not set
-CONFIG_NET_SCHED=y
-
-#
-# Queueing/Scheduling
-#
-# CONFIG_NET_SCH_CBQ is not set
-# CONFIG_NET_SCH_HTB is not set
-# CONFIG_NET_SCH_HFSC is not set
-# CONFIG_NET_SCH_PRIO is not set
-# CONFIG_NET_SCH_MULTIQ is not set
-# CONFIG_NET_SCH_RED is not set
-# CONFIG_NET_SCH_SFQ is not set
-# CONFIG_NET_SCH_TEQL is not set
-# CONFIG_NET_SCH_TBF is not set
-# CONFIG_NET_SCH_GRED is not set
-# CONFIG_NET_SCH_DSMARK is not set
-# CONFIG_NET_SCH_NETEM is not set
-# CONFIG_NET_SCH_DRR is not set
-
-#
-# Classification
-#
-# CONFIG_NET_CLS_BASIC is not set
-# CONFIG_NET_CLS_TCINDEX is not set
-# CONFIG_NET_CLS_ROUTE4 is not set
-# CONFIG_NET_CLS_FW is not set
-# CONFIG_NET_CLS_U32 is not set
-# CONFIG_NET_CLS_RSVP is not set
-# CONFIG_NET_CLS_RSVP6 is not set
-# CONFIG_NET_CLS_FLOW is not set
-# CONFIG_NET_CLS_CGROUP is not set
-# CONFIG_NET_EMATCH is not set
-# CONFIG_NET_CLS_ACT is not set
-CONFIG_NET_SCH_FIFO=y
+# CONFIG_NET_SCHED is not set
 # CONFIG_DCB is not set
 CONFIG_DNS_RESOLVER=m
 # CONFIG_BATMAN_ADV is not set
