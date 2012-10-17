@@ -33,6 +33,8 @@ modules.builtin
 *.patch
 *.gcno
 *.bak
+.config
+.version
 
 #
 # Top-level generic files
