@@ -13,6 +13,7 @@
  *
  */
 
+#include <linux/delay.h>
 #include <linux/earlysuspend.h>
 #include <linux/module.h>
 #include <linux/wait.h>
@@ -34,6 +35,12 @@ static void stop_drawing_early_suspend(struct early_suspend *h)
 	unsigned long irq_flags;
 
 	spin_lock_irqsave(&fb_state_lock, irq_flags);
+	
+	/* FIXME: earlysuspend breaks androids CRT-off animation
+         * Sleep a little bit to get it played properly 
+	 */
+        msleep(500);
+
 	fb_state = FB_STATE_REQUEST_STOP_DRAWING;
 	spin_unlock_irqrestore(&fb_state_lock, irq_flags);
 

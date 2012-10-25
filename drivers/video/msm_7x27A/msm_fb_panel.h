@@ -201,6 +201,7 @@ struct msm_fb_panel_data {
 	/* function entry chain */
 	int (*on) (struct platform_device *pdev);
 	int (*off) (struct platform_device *pdev);
+	void (*window_adjust)(u16 x1, u16 x2, u16 y1, u16 y2);
 	void (*bklswitch) (struct msm_fb_data_type *, bool on);
 	void (*bklctrl) (struct msm_fb_data_type *, bool on);
 	void (*panel_type_detect) (struct mipi_panel_info *);
