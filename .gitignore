@@ -33,6 +33,7 @@ modules.builtin
 *.patch
 *.gcno
 *.bak
+*.rej
 .config
 .version
 
